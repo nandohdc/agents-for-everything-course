@@ -1,0 +1,12 @@
+# Optional extras for the LangChain RAG backend (bonus, Issue #14).
+# Install on top of the baseline dependencies:
+#   pip install -r requirements.txt
+#   pip install -r requirements-langchain.txt
+# Then run:  python -m src.cli --engine langchain "..."
+#
+# The baseline pipeline does NOT require these packages; the LangChain code in
+# src/langchain_pipeline.py imports them lazily.
+langchain
+langchain-community
+langchain-core
+langchain-huggingface
