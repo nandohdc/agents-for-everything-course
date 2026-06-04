@@ -23,3 +23,6 @@ dist/
 # Model caches
 .cache/huggingface/
 .cache/torch/
+
+# Q&A history (runtime output of the CLI; see Issue #15)
+history/
