@@ -6,7 +6,12 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 
 from src.chunker import Chunk
-from src.embeddings import Embedder, load_embeddings, save_embeddings
+from src.embeddings import (
+    Embedder,
+    chunk_to_metadata,
+    load_embeddings,
+    save_embeddings,
+)
 
 
 class TestEmbeddings(unittest.TestCase):
@@ -51,6 +56,45 @@ class TestEmbeddings(unittest.TestCase):
         mock_model.encode.assert_not_called()
         self.assertEqual(embeddings.size, 0)
         self.assertEqual(embeddings.shape, (0,))
+
+    def test_chunk_to_metadata_enriches_with_text_and_source(self):
+        """Persisted metadata must carry the chunk text and a display source.
+
+        Regression for the retrieval gap: the chunker keeps text on ``Chunk.text``
+        and uses ``source_path``/``source_filename`` keys, but downstream consumers
+        (query script, prompt builder) read ``text`` and ``source``.
+        """
+        chunk = Chunk(
+            text="Store beans in an airtight container.",
+            metadata={
+                "source_filename": "coffee_storage_and_freshness.txt",
+                "source_path": "data/coffee_storage_and_freshness.txt",
+                "chunk_index": 2,
+                "chunk_size": 37,
+            },
+        )
+
+        metadata = chunk_to_metadata(chunk)
+
+        # Chunk body is now retrievable via the "text" key.
+        self.assertEqual(metadata["text"], "Store beans in an airtight container.")
+        # A non-empty display source is present (prefers the relative path).
+        self.assertEqual(metadata["source"], "data/coffee_storage_and_freshness.txt")
+        # Original chunk metadata keys are preserved.
+        self.assertEqual(metadata["source_filename"], "coffee_storage_and_freshness.txt")
+        self.assertEqual(metadata["chunk_index"], 2)
+        self.assertEqual(metadata["chunk_size"], 37)
+        # The helper returns a new dict; it does not mutate the chunk's metadata.
+        self.assertNotIn("text", chunk.metadata)
+
+    def test_chunk_to_metadata_source_falls_back_to_filename(self):
+        """When no source_path is available, source falls back to the filename."""
+        chunk = Chunk(text="hello", metadata={"source_filename": "a.txt"})
+
+        metadata = chunk_to_metadata(chunk)
+
+        self.assertEqual(metadata["source"], "a.txt")
+        self.assertEqual(metadata["text"], "hello")
 
     def test_save_and_load_embeddings(self):
         """Test persistence of embeddings and metadata to disk."""

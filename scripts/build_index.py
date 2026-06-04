@@ -5,10 +5,17 @@ and persists the index back to the indexes/ directory.
 """
 
 import argparse
+import sys
 from pathlib import Path
 
-from src.embeddings import load_embeddings
-from src.vector_store import VectorStore
+# Ensure the project root is on sys.path so ``src`` can be imported when
+# running the script directly (e.g. ``python scripts/build_index.py``).
+_project_root = str(Path(__file__).resolve().parent.parent)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from src.embeddings import load_embeddings  # noqa: E402
+from src.vector_store import VectorStore  # noqa: E402
 
 
 def main():

@@ -45,6 +45,33 @@ class Embedder:
         return embeddings
 
 
+def chunk_to_metadata(chunk: Chunk) -> Dict[str, Any]:
+    """Build a persist-ready metadata dict for a chunk.
+
+    The chunker stores positional metadata (``source_filename``, ``source_path``,
+    ``chunk_index``, ``chunk_size``) on ``chunk.metadata`` and keeps the chunk text
+    on ``chunk.text``. Retrieval consumers (``scripts/query.py``,
+    ``src/prompt_builder.py``) need the chunk ``text`` and a display ``source`` to
+    surface results and build prompts, so enrich the metadata with both here before
+    persisting it alongside the embeddings.
+
+    Args:
+        chunk: The source chunk.
+
+    Returns:
+        A new dict containing the chunk's original metadata plus ``text`` (the chunk
+        body) and ``source`` (its source path, falling back to filename).
+    """
+    metadata = dict(chunk.metadata)
+    metadata["text"] = chunk.text
+    metadata.setdefault(
+        "source",
+        chunk.metadata.get("source_path")
+        or chunk.metadata.get("source_filename", "Unknown"),
+    )
+    return metadata
+
+
 def save_embeddings(
     embeddings: np.ndarray,
     metadata: List[Dict[str, Any]],

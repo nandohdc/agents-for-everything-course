@@ -3,102 +3,136 @@
     "source_filename": "coffee_beans_and_roast_levels.txt",
     "source_path": "data/coffee_beans_and_roast_levels.txt",
     "chunk_index": 0,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "Coffee Beans and Roast Levels FAQ What are the main types of coffee beans? Most everyday coffee is made from arabica or robusta beans. Arabica is common in specialty coffee because it often tastes smoother, sweeter, and more aromatic. Robusta usually has a stronger body, more bitterness, and more caffeine. Some blends combine arabica and robusta to balance flavor, crema, cost, and strength. How do roast levels affect flavor? Light roast coffee usually keeps more of the bean's original character.",
+    "source": "data/coffee_beans_and_roast_levels.txt"
   },
   {
     "source_filename": "coffee_beans_and_roast_levels.txt",
     "source_path": "data/coffee_beans_and_roast_levels.txt",
     "chunk_index": 1,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "ually keeps more of the bean's original character. It can taste bright, floral, fruity, or tea-like, especially when brewed as pour-over or filter coffee. Medium roast coffee balances origin flavor with sweetness and body. It often has notes like caramel, nuts, chocolate, or toasted grain. Dark roast coffee has more roast-driven flavor, with heavier body, lower perceived acidity, and notes like cocoa, smoke, or roasted nuts. Does darker roast mean more caffeine? Not always. Caffeine changes only",
+    "source": "data/coffee_beans_and_roast_levels.txt"
   },
   {
     "source_filename": "coffee_beans_and_roast_levels.txt",
     "source_path": "data/coffee_beans_and_roast_levels.txt",
     "chunk_index": 2,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "n more caffeine? Not always. Caffeine changes only slightly during roasting. If coffee is measured by scoop volume, lighter roasts can contain a bit more caffeine because the beans are denser. If measured by weight, light and dark roasts are usually similar. Robusta beans generally contain more caffeine than arabica beans, regardless of roast level. What does single-origin mean? Single-origin coffee comes from one country, region, farm, or cooperative. It is useful when someone wants distinct fl",
+    "source": "data/coffee_beans_and_roast_levels.txt"
   },
   {
     "source_filename": "coffee_beans_and_roast_levels.txt",
     "source_path": "data/coffee_beans_and_roast_levels.txt",
     "chunk_index": 3,
-    "chunk_size": 453
+    "chunk_size": 453,
+    "text": "ative. It is useful when someone wants distinct flavor notes from a specific place. Blends combine beans from multiple sources to create a consistent flavor profile, often for espresso or milk drinks. What is decaf coffee? Decaf coffee has most caffeine removed before roasting. It is not completely caffeine-free, but it has far less caffeine than regular coffee. Good decaf can still show roast level, body, aroma, and sweetness when brewed carefully.",
+    "source": "data/coffee_beans_and_roast_levels.txt"
   },
   {
     "source_filename": "coffee_brewing_basics.txt",
     "source_path": "data/coffee_brewing_basics.txt",
     "chunk_index": 0,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "Coffee Brewing Basics FAQ What grind size should I use? Grind size controls how quickly water extracts flavor from coffee. Espresso needs a fine grind because water passes through the coffee quickly under pressure. Pour-over usually uses a medium grind so water can flow steadily through the filter. French press works best with a coarse grind because the coffee steeps in water for several minutes. If coffee tastes sour or weak, try a finer grind. If it tastes harsh or bitter, try a coarser grind.",
+    "source": "data/coffee_brewing_basics.txt"
   },
   {
     "source_filename": "coffee_brewing_basics.txt",
     "source_path": "data/coffee_brewing_basics.txt",
     "chunk_index": 1,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "If it tastes harsh or bitter, try a coarser grind. What water temperature is best? Most brewed coffee works well with water around 90 to 96 degrees Celsius, or 195 to 205 degrees Fahrenheit. Water that is too cool can under-extract coffee and make it taste thin or sharp. Water that is too hot can emphasize bitterness, especially with darker roasts. What brew ratio should I start with? A common starting ratio is 1 part coffee to 15 or 16 parts water by weight. For example, use 20 grams of coffee ",
+    "source": "data/coffee_brewing_basics.txt"
   },
   {
     "source_filename": "coffee_brewing_basics.txt",
     "source_path": "data/coffee_brewing_basics.txt",
     "chunk_index": 2,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "er by weight. For example, use 20 grams of coffee with 300 to 320 grams of water. A stronger cup can use a 1:14 ratio. A lighter cup can use a 1:17 ratio. Measuring by weight is more consistent than measuring by scoops. How are common brewing methods different? Pour-over highlights clarity and aroma because water passes through a paper filter. French press creates a heavier body because coffee oils and fine particles stay in the cup. Espresso is concentrated and intense because pressure pushes w",
+    "source": "data/coffee_brewing_basics.txt"
   },
   {
     "source_filename": "coffee_brewing_basics.txt",
     "source_path": "data/coffee_brewing_basics.txt",
     "chunk_index": 3,
-    "chunk_size": 418
+    "chunk_size": 418,
+    "text": "concentrated and intense because pressure pushes water through finely ground coffee. Cold brew steeps coffee in cool water for many hours, producing a smooth drink with low perceived acidity. How can I improve a bad cup? Change only one variable at a time. Adjust grind size first, then brew ratio, water temperature, or contact time. Fresh beans, clean equipment, and filtered water also make a noticeable difference.",
+    "source": "data/coffee_brewing_basics.txt"
   },
   {
     "source_filename": "coffee_cafe_faq.txt",
     "source_path": "data/coffee_cafe_faq.txt",
     "chunk_index": 0,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "Coffee Cafe FAQ What is the difference between espresso and brewed coffee? Espresso is a small, concentrated coffee made by forcing pressurized water through finely ground coffee. Brewed coffee, such as drip or pour-over, uses more water and usually has a larger serving size. Espresso often tastes stronger, but a full mug of brewed coffee can contain more total caffeine because the serving is larger. What is a latte? A latte is espresso with steamed milk and a small layer of foam. It is usually ",
+    "source": "data/coffee_cafe_faq.txt"
   },
   {
     "source_filename": "coffee_cafe_faq.txt",
     "source_path": "data/coffee_cafe_faq.txt",
     "chunk_index": 1,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "med milk and a small layer of foam. It is usually mild, creamy, and easy to customize. Common additions include vanilla, caramel, cocoa, cinnamon, or alternative milks such as oat, soy, or almond. What is a cappuccino? A cappuccino is espresso with steamed milk and a thicker layer of foam than a latte. It usually tastes more coffee-forward because it has less milk in the cup. Traditional cappuccinos are smaller than many modern cafe versions. What is an americano? An americano is espresso dilute",
+    "source": "data/coffee_cafe_faq.txt"
   },
   {
     "source_filename": "coffee_cafe_faq.txt",
     "source_path": "data/coffee_cafe_faq.txt",
     "chunk_index": 2,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "t is an americano? An americano is espresso diluted with hot water. It keeps some espresso character while becoming closer in volume and strength to brewed coffee. It is a useful choice for someone who wants a simple black coffee when a cafe does not serve drip coffee. What do milk alternatives change? Oat milk often creates a creamy texture and works well in lattes. Soy milk has more protein and can foam well, but flavor varies by brand. Almond milk tastes nutty and lighter, and it may separate",
+    "source": "data/coffee_cafe_faq.txt"
   },
   {
     "source_filename": "coffee_cafe_faq.txt",
     "source_path": "data/coffee_cafe_faq.txt",
     "chunk_index": 3,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "milk tastes nutty and lighter, and it may separate if overheated. Barista-style versions are designed to steam and foam more reliably. How should I ask for less sweetness? Ask for fewer pumps of syrup or request sauce on the side when available. Many cafe drinks can be ordered half-sweet, unsweetened, or with a smaller amount of flavored syrup. What should I order if I want less caffeine? Choose decaf espresso, half-caf espresso, a smaller serving, or milk-forward drinks. Herbal tea and some ste",
+    "source": "data/coffee_cafe_faq.txt"
   },
   {
     "source_filename": "coffee_cafe_faq.txt",
     "source_path": "data/coffee_cafe_faq.txt",
     "chunk_index": 4,
-    "chunk_size": 83
+    "chunk_size": 83,
+    "text": "g, or milk-forward drinks. Herbal tea and some steamers contain no coffee caffeine.",
+    "source": "data/coffee_cafe_faq.txt"
   },
   {
     "source_filename": "coffee_storage_and_freshness.txt",
     "source_path": "data/coffee_storage_and_freshness.txt",
     "chunk_index": 0,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "Coffee Storage and Freshness FAQ How long does roasted coffee stay fresh? Whole bean coffee is usually best within a few weeks after roasting. Many bags taste balanced after a short resting period of two to seven days, then slowly lose aroma. Ground coffee stales faster because more surface area is exposed to air. For best flavor, grind beans shortly before brewing. How should I store coffee beans? Store coffee in an airtight container away from heat, light, moisture, and strong odors. A cool ca",
+    "source": "data/coffee_storage_and_freshness.txt"
   },
   {
     "source_filename": "coffee_storage_and_freshness.txt",
     "source_path": "data/coffee_storage_and_freshness.txt",
     "chunk_index": 1,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "heat, light, moisture, and strong odors. A cool cabinet is better than a sunny counter. Coffee absorbs smells easily, so keep it away from spices, cleaning products, and open food containers. Should coffee be stored in the refrigerator? The refrigerator is usually not ideal. It has moisture, temperature changes, and food odors that can affect coffee. Daily movement in and out of the refrigerator can also cause condensation. Room-temperature storage in a sealed container is better for coffee used",
+    "source": "data/coffee_storage_and_freshness.txt"
   },
   {
     "source_filename": "coffee_storage_and_freshness.txt",
     "source_path": "data/coffee_storage_and_freshness.txt",
     "chunk_index": 2,
-    "chunk_size": 500
+    "chunk_size": 500,
+    "text": "ge in a sealed container is better for coffee used within a few weeks. Can coffee be frozen? Freezing can work for longer storage if the coffee is sealed well and divided into small portions. Remove only the portion you need and let it warm while still sealed to avoid condensation on the beans. Do not repeatedly thaw and refreeze the same bag. How can I tell if coffee is stale? Stale coffee often smells flat, papery, or dusty. Brewed stale coffee may taste dull, bitter, woody, or hollow, even if",
+    "source": "data/coffee_storage_and_freshness.txt"
   },
   {
     "source_filename": "coffee_storage_and_freshness.txt",
     "source_path": "data/coffee_storage_and_freshness.txt",
     "chunk_index": 3,
-    "chunk_size": 486
+    "chunk_size": 486,
+    "text": " may taste dull, bitter, woody, or hollow, even if the grind and brew ratio are correct. Fresh coffee usually has a clearer aroma and more distinct sweetness, acidity, or roast flavor. Does packaging matter? Valve bags help freshly roasted coffee release gas without letting much oxygen in. Once opened, the bag should be rolled tightly or the beans should be moved to an airtight container. Clear jars look attractive but expose coffee to light, so they are best kept inside a cabinet.",
+    "source": "data/coffee_storage_and_freshness.txt"
   }
 ]
