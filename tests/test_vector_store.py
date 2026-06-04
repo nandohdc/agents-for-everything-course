@@ -17,17 +17,17 @@ class TestVectorStore(unittest.TestCase):
         self.assertEqual(self.vector_store.index.ntotal, 0)
         
     def test_add_embeddings(self):
-        embeddings = np.random.rand(5, self.dimension).astype(np.float32)
+        embeddings = np.random.default_rng(42).random((5, self.dimension)).astype(np.float32)
         self.vector_store.add(embeddings)
         self.assertEqual(self.vector_store.index.ntotal, 5)
         
     def test_add_wrong_dimension(self):
-        embeddings = np.random.rand(5, 128).astype(np.float32)
+        embeddings = np.random.default_rng(42).random((5, 128)).astype(np.float32)
         with self.assertRaises(ValueError):
             self.vector_store.add(embeddings)
             
     def test_save_and_load(self):
-        embeddings = np.random.rand(10, self.dimension).astype(np.float32)
+        embeddings = np.random.default_rng(42).random((10, self.dimension)).astype(np.float32)
         self.vector_store.add(embeddings)
         
         with tempfile.TemporaryDirectory() as temp_dir:
