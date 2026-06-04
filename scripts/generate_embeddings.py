@@ -5,11 +5,18 @@ and persists the output to the indexes/ directory.
 """
 
 import argparse
+import sys
 from pathlib import Path
 
-from src.chunker import chunk_documents
-from src.document_loader import load_documents
-from src.embeddings import Embedder, save_embeddings
+# Ensure the project root is on sys.path so ``src`` can be imported when
+# running the script directly (e.g. ``python scripts/generate_embeddings.py``).
+_project_root = str(Path(__file__).resolve().parent.parent)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from src.chunker import chunk_documents  # noqa: E402
+from src.document_loader import load_documents  # noqa: E402
+from src.embeddings import Embedder, chunk_to_metadata, save_embeddings  # noqa: E402
 
 
 def main():
@@ -59,7 +66,7 @@ def main():
     )
 
     print(f"Saving embeddings and metadata to {args.output_dir}...")
-    metadata = [chunk.metadata for chunk in chunks]
+    metadata = [chunk_to_metadata(chunk) for chunk in chunks]
     save_embeddings(embeddings, metadata, args.output_dir)
     print("Done!")
 

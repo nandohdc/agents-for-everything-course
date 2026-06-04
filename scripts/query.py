@@ -4,9 +4,16 @@ Queries the loaded vector store and metadata for a given text.
 """
 
 import argparse
+import sys
 from pathlib import Path
 
-from src.query_engine import QueryEngine
+# Ensure the project root is on sys.path so ``src`` can be imported when
+# running the script directly (e.g. ``python scripts/query.py``).
+_project_root = str(Path(__file__).resolve().parent.parent)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from src.query_engine import QueryEngine  # noqa: E402
 
 
 def main():
