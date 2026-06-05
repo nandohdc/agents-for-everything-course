@@ -61,6 +61,9 @@ class QueryEngine:
                 - The metadata dict for the retrieved chunk.
                 - The distance/similarity score (lower is more similar for L2).
         """
+        if k <= 0:
+            raise ValueError(f"k must be > 0, got {k}")
+
         if not question.strip():
             return []
             

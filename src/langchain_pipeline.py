@@ -16,6 +16,8 @@ from pathlib import Path
 
 from src.chunker import chunk_documents
 from src.document_loader import load_documents
+from src.generator import Generator
+from src.grounding import REFUSAL_ANSWER, context_supports_question
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 DEFAULT_MODEL = "google/flan-t5-base"
@@ -38,7 +40,7 @@ class LangChainRAG:
 
     Builds an in-memory FAISS vector store from the same ``data/`` corpus the
     baseline uses (chunked identically), embeds with ``all-MiniLM-L6-v2`` and
-    generates with ``flan-t5-base`` wrapped as a LangChain LLM.
+    generates with the same local flan-t5 generator as the baseline pipeline.
     """
 
     def __init__(
@@ -55,25 +57,27 @@ class LangChainRAG:
             from langchain_community.vectorstores import FAISS
             from langchain_core.documents import Document as LCDocument
             from langchain_core.prompts import PromptTemplate
-            from langchain_huggingface import (
-                HuggingFaceEmbeddings,
-                HuggingFacePipeline,
-            )
+            from langchain_huggingface import HuggingFaceEmbeddings
         except ImportError as exc:  # pragma: no cover - depends on optional extras
             raise ImportError(
                 "LangChain extras are not installed. Install them with: "
                 "pip install -r requirements-langchain.txt"
             ) from exc
 
-        from transformers import pipeline as hf_pipeline
-
         self.k = k
+        self.max_tokens = max_tokens
 
         # 1. Load + chunk the same corpus the baseline pipeline uses.
         docs = load_documents(data_dir)
+        if not docs:
+            raise ValueError(f"No documents found in '{data_dir}'.")
+
         chunks = chunk_documents(
             docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap
         )
+        if not chunks:
+            raise ValueError(f"No chunks produced from documents in '{data_dir}'.")
+
         lc_docs = [
             LCDocument(
                 page_content=chunk.text,
@@ -90,16 +94,21 @@ class LangChainRAG:
         self.vectorstore = FAISS.from_documents(lc_docs, embeddings)
         self.retriever = self.vectorstore.as_retriever(search_kwargs={"k": k})
 
-        # 3. Wrap flan-t5 as a LangChain LLM.
-        generation_pipeline = hf_pipeline(
-            "text2text-generation", model=model_name, max_new_tokens=max_tokens
-        )
-        self.llm = HuggingFacePipeline(pipeline=generation_pipeline)
+        # 3. Use the baseline local generator so Transformers task support stays
+        # consistent between the two CLI engines.
+        self.generator = Generator(model_name=model_name)
         self.prompt = PromptTemplate.from_template(LANGCHAIN_QA_TEMPLATE)
 
     def answer(self, question: str) -> Tuple[str, List[str]]:
         """Answer a question end-to-end; returns ``(answer, source_labels)``."""
         docs = self.retriever.invoke(question)
+        if not context_supports_question(question, (doc.page_content for doc in docs)):
+            sources: List[str] = []
+            for doc in docs:
+                source = doc.metadata.get("source", "Unknown")
+                if source not in sources:
+                    sources.append(source)
+            return REFUSAL_ANSWER, sources
 
         context = "\n\n".join(
             f"[{i + 1}] Source: {doc.metadata.get('source', 'Unknown')}\n{doc.page_content}"
@@ -109,9 +118,9 @@ class LangChainRAG:
             context=context or "No relevant context found.", question=question
         )
 
-        answer = self.llm.invoke(prompt_text)
-        if not isinstance(answer, str):
-            answer = str(answer)
+        answer = self.generator.generate(
+            prompt_text, max_new_tokens=self.max_tokens, temperature=0.0
+        )
 
         sources: List[str] = []
         for doc in docs:

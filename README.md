@@ -116,8 +116,10 @@ python -m src.cli --engine langchain "How should I store coffee beans?"
 ```
 
 It builds an in-memory FAISS store from the same corpus, embeds with MiniLM and
-generates with flan-t5 via LangChain wrappers. The baseline pipeline keeps
-working without these extras installed (LangChain is imported lazily).
+uses LangChain retriever and prompt helpers before generating with the same
+local flan-t5 model as the baseline pipeline. The baseline pipeline keeps
+working without these extras installed (LangChain is imported lazily), and
+missing optional dependencies are reported as concise CLI errors.
 
 ## Testing
 

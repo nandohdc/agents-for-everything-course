@@ -98,6 +98,23 @@ class TestQueryEngine(unittest.TestCase):
         results = engine.query("   ", k=2)
         self.assertEqual(len(results), 0)
 
+    @patch("src.query_engine.VectorStore")
+    @patch("src.query_engine.Embedder")
+    def test_query_rejects_invalid_k(self, MockEmbedder, MockVectorStore):
+        with open(self.index_path, "w") as f:
+            f.write("dummy index")
+
+        mock_vs_instance = MockVectorStore.return_value
+        mock_vs_instance.index.ntotal = 2
+
+        engine = QueryEngine(
+            index_path=self.index_path,
+            metadata_dir=self.base_path
+        )
+
+        with self.assertRaisesRegex(ValueError, "k must be > 0"):
+            engine.query("test query", k=0)
+
 
 if __name__ == "__main__":
     unittest.main()
