@@ -4,10 +4,21 @@ A terminal FAQ chatbot over a local coffee-domain corpus, built as a lightweight
 **RAG** (Retrieval-Augmented Generation) pipeline. It uses only free/local
 models — no paid APIs.
 
-**Pipeline:** load `.txt` docs from `data/` → chunk → embed with
-`sentence-transformers/all-MiniLM-L6-v2` → index with **FAISS** → retrieve the
-most relevant chunks for a question → generate an answer with
-`google/flan-t5-base`.
+**Baseline pipeline:** recursively load `.txt` docs from `data/` → normalize and
+chunk text with a character sliding window → embed chunks with
+`sentence-transformers/all-MiniLM-L6-v2` → persist embeddings, metadata, and a
+**FAISS** index → retrieve the closest chunks for a question → build a
+context-only prompt → generate an answer with `google/flan-t5-base`.
+
+The implemented CLI also includes:
+
+- automatic index creation when `indexes/faiss.index` or `indexes/metadata.json`
+  is missing;
+- a lightweight lexical grounding guard that refuses questions unsupported by
+  the retrieved context;
+- JSONL question/answer history saved under `history/` by default;
+- an optional LangChain backend that builds an in-memory retriever from the same
+  local corpus.
 
 ## Setup
 
@@ -16,12 +27,17 @@ Create and activate a virtual environment, then install dependencies:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-The dependency set has been validated with **Python 3.14**. The first run
-downloads the MiniLM and flan-t5 models from Hugging Face (a few hundred MB),
-which are then cached locally.
+This checkout has been validated locally with **Python 3.14.5**. The first run
+downloads the MiniLM and flan-t5 models from Hugging Face, which are then cached
+locally by the Hugging Face tooling.
+
+The baseline dependencies are `transformers`, `sentence-transformers`,
+`faiss-cpu`, `torch`, and `numpy`. LangChain support is intentionally split into
+`requirements-langchain.txt`.
 
 ## Usage
 
@@ -40,8 +56,8 @@ Sources:
   - data/coffee_storage_and_freshness.txt
 ```
 
-If the FAISS index does not exist yet, the CLI **builds it automatically** from
-`data/` before answering.
+If the persisted FAISS index or metadata does not exist yet, the baseline CLI
+**builds it automatically** from `data/` before answering.
 
 ### Interactive session
 
@@ -71,8 +87,8 @@ Goodbye!
 |---|---|---|
 | `-k`, `--top-k` | `3` | Number of chunks to retrieve. |
 | `--index-file` | `indexes/faiss.index` | Path to the FAISS index. |
-| `--metadata-dir` | `indexes` | Directory holding `metadata.json`. |
-| `--data-dir` | `data` | Corpus used when (re)building the index. |
+| `--metadata-dir` | `indexes` | Directory holding `embeddings.npy` and `metadata.json`. |
+| `--data-dir` | `data` | Corpus used when building the baseline index or LangChain pipeline. |
 | `--rebuild` | off | Rebuild the index from `--data-dir` before answering. |
 | `--model` | `google/flan-t5-base` | Generator model. |
 | `--max-tokens` | `128` | Max new tokens to generate. |
@@ -102,6 +118,17 @@ python scripts/build_index.py            # embeddings -> indexes/faiss.index
 python scripts/query.py "..."            # retrieval only (no generation)
 ```
 
+Script entry points mirror the implementation modules:
+
+| Script | Purpose |
+|---|---|
+| `scripts/load_documents.py` | Load recursive `.txt` files and print corpus metadata. |
+| `scripts/chunk_documents.py` | Preview normalized character chunks from the corpus. |
+| `scripts/generate_embeddings.py` | Build `embeddings.npy` and `metadata.json` from corpus chunks. |
+| `scripts/build_index.py` | Build `faiss.index` from saved embeddings. |
+| `scripts/query.py` | Retrieve and print top-k chunks from the persisted index. |
+| `scripts/generate_answer.py` | Smoke-test the local generation model with a prompt. |
+
 ### Q&A history (optional, bonus — Issue #15)
 
 Each interaction is appended as one JSON line to `history/qa_history.jsonl`
@@ -124,11 +151,12 @@ pip install -r requirements-langchain.txt
 python -m src.cli --engine langchain "How should I store coffee beans?"
 ```
 
-It builds an in-memory FAISS store from the same corpus, embeds with MiniLM and
+It builds an in-memory FAISS store from the same corpus, embeds with MiniLM, and
 uses LangChain retriever and prompt helpers before generating with the same
-local flan-t5 model as the baseline pipeline. The baseline pipeline keeps
-working without these extras installed (LangChain is imported lazily), and
-missing optional dependencies are reported as concise CLI errors.
+local flan-t5 model as the baseline pipeline. It does not use the persisted
+`indexes/faiss.index` file. The baseline pipeline keeps working without these
+extras installed because LangChain imports are lazy, and missing optional
+dependencies are reported as concise CLI errors.
 
 ## Testing
 
@@ -158,9 +186,18 @@ Run tests with the **repo root as the working directory**.
 data/                 local coffee corpus (.txt)
 indexes/              generated FAISS index + embeddings + metadata (build output)
 history/              Q&A history (git-ignored, runtime output)
-src/                  document_loader, chunker, embeddings, vector_store,
-                      query_engine, prompt_builder, generator, cli,
-                      history, langchain_pipeline
+src/document_loader.py recursive .txt corpus loading
+src/chunker.py         whitespace normalization + character window chunking
+src/embeddings.py      MiniLM embedding generation + metadata persistence
+src/vector_store.py    FAISS IndexFlatL2 wrapper
+src/query_engine.py    persisted-index retrieval
+src/prompt_builder.py  context-only prompt construction
+src/grounding.py       lightweight unsupported-question refusal guard
+src/generator.py       local Hugging Face seq2seq generation
+src/history.py         optional JSONL interaction history
+src/langchain_pipeline.py
+                      optional LangChain backend
+src/cli.py             single-shot and interactive terminal interface
 scripts/              runnable entry points (load/generate/build/query/answer)
 tests/                unit tests + e2e_smoke.py
 ```
