@@ -51,6 +51,7 @@ class LangChainRAG:
         model_name: str = DEFAULT_MODEL,
         chunk_size: int = 500,
         chunk_overlap: int = 50,
+        hf_token: Union[str, None] = None,
     ):
         # Lazy imports keep LangChain an optional dependency.
         try:
@@ -90,13 +91,16 @@ class LangChainRAG:
         ]
 
         # 2. Build the FAISS vector store with MiniLM embeddings.
-        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        embedding_kwargs = {"model_name": EMBEDDING_MODEL}
+        if hf_token:
+            embedding_kwargs["model_kwargs"] = {"token": hf_token}
+        embeddings = HuggingFaceEmbeddings(**embedding_kwargs)
         self.vectorstore = FAISS.from_documents(lc_docs, embeddings)
         self.retriever = self.vectorstore.as_retriever(search_kwargs={"k": k})
 
         # 3. Use the baseline local generator so Transformers task support stays
         # consistent between the two CLI engines.
-        self.generator = Generator(model_name=model_name)
+        self.generator = Generator(model_name=model_name, hf_token=hf_token)
         self.prompt = PromptTemplate.from_template(LANGCHAIN_QA_TEMPLATE)
 
     def answer(self, question: str) -> Tuple[str, List[str]]:

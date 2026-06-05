@@ -1,6 +1,6 @@
 """Local LLM generation module using Hugging Face transformers."""
 
-from typing import Optional
+from typing import Union
 
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
@@ -9,19 +9,25 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 class Generator:
     """Generates answers from prompts using a local Sequence-to-Sequence model."""
 
-    def __init__(self, model_name: str = "google/flan-t5-base"):
+    def __init__(
+        self,
+        model_name: str = "google/flan-t5-base",
+        hf_token: Union[str, None] = None,
+    ):
         """Initialize the generator with a local model.
 
         Args:
             model_name: The Hugging Face model hub identifier.
+            hf_token: Optional Hugging Face user access token for model downloads.
         """
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # Support Apple Silicon (MPS) if available
         if not torch.cuda.is_available() and hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             self.device = "mps"
-            
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
+
+        kwargs = {"token": hf_token} if hf_token else {}
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, **kwargs)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name, **kwargs).to(self.device)
 
     def generate(
         self, 

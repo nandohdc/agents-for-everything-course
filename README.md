@@ -77,8 +77,17 @@ Goodbye!
 | `--model` | `google/flan-t5-base` | Generator model. |
 | `--max-tokens` | `128` | Max new tokens to generate. |
 | `--engine` | `baseline` | `baseline` or `langchain` (see below). |
+| `--hf-token` | unset | Hugging Face token for authenticated model downloads. |
 | `--history-file` | `history/qa_history.jsonl` | Where Q&A history is appended. |
 | `--no-history` | off | Disable Q&A history storage. |
+
+Prefer `HF_TOKEN` or `hf auth login` for regular use because command-line
+tokens can be visible in shell history or process listings. Use `--hf-token`
+only for short-lived local or CI commands:
+
+```bash
+python -m src.cli "How should I store coffee beans?" --hf-token "$HF_TOKEN"
+```
 
 ### Building the index explicitly
 

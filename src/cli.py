@@ -63,6 +63,7 @@ def build_index(
     chunk_size: int = 500,
     chunk_overlap: int = 50,
     index_file: Union[str, Path, None] = None,
+    hf_token: Union[str, None] = None,
 ) -> Dict[str, Any]:
     """Build and persist embeddings + a FAISS index from a text corpus.
 
@@ -77,6 +78,7 @@ def build_index(
         chunk_size: Chunk size in characters.
         chunk_overlap: Chunk overlap in characters.
         index_file: Path for the FAISS index file.
+        hf_token: Optional Hugging Face user access token for model downloads.
 
     Returns:
         A summary dict with ``num_documents``, ``num_chunks``, ``dimension``
@@ -97,7 +99,7 @@ def build_index(
     if not chunks:
         raise ValueError(f"No chunks produced from documents in '{data_dir}'.")
 
-    embedder = Embedder()
+    embedder = Embedder(hf_token=hf_token)
     embeddings = embedder.embed_chunks(chunks)
     metadata = [chunk_to_metadata(chunk) for chunk in chunks]
     save_embeddings(embeddings, metadata, output_dir)
@@ -248,6 +250,7 @@ def _run_baseline(args: argparse.Namespace, history_file: Union[str, Path, None]
                 data_dir=args.data_dir,
                 output_dir=args.metadata_dir,
                 index_file=args.index_file,
+                hf_token=args.hf_token,
             )
             print(
                 f"Indexed {summary['num_chunks']} chunks from "
@@ -259,8 +262,9 @@ def _run_baseline(args: argparse.Namespace, history_file: Union[str, Path, None]
             index_path=args.index_file,
             metadata_dir=args.metadata_dir,
             model_name=EMBEDDING_MODEL,
+            hf_token=args.hf_token,
         )
-        generator = Generator(model_name=args.model)
+        generator = Generator(model_name=args.model, hf_token=args.hf_token)
 
         def answer_fn(question: str) -> Tuple[str, List[str]]:
             answer, results = answer_question(
@@ -292,6 +296,7 @@ def _run_langchain(args: argparse.Namespace, history_file: Union[str, Path, None
             k=args.top_k,
             max_tokens=args.max_tokens,
             model_name=args.model,
+            hf_token=args.hf_token,
         )
         return _dispatch(args.question, rag.answer, history_file)
     except USER_FACING_EXCEPTIONS as exc:
@@ -340,6 +345,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--model",
         default=DEFAULT_MODEL,
         help=f"Generator model (default: {DEFAULT_MODEL}).",
+    )
+    parser.add_argument(
+        "--hf-token",
+        default=None,
+        help=(
+            "Hugging Face user access token for model downloads. Prefer the "
+            "HF_TOKEN environment variable or `hf auth login` when possible."
+        ),
     )
     parser.add_argument(
         "--engine",

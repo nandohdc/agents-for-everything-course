@@ -45,6 +45,15 @@ class TestEmbeddings(unittest.TestCase):
         self.assertTrue(np.allclose(embeddings[1], [0.4, 0.5, 0.6]))
 
     @patch("src.embeddings.SentenceTransformer")
+    def test_initialization_passes_hf_token(self, mock_transformer_cls):
+        """Test that an explicit Hugging Face token is passed to the model."""
+        Embedder(model_name="private-model", hf_token="hf_test")
+
+        mock_transformer_cls.assert_called_once_with(
+            "private-model", token="hf_test"
+        )
+
+    @patch("src.embeddings.SentenceTransformer")
     def test_embed_empty_chunks(self, mock_transformer_cls):
         """Test that empty inputs yield an empty array without calling the model."""
         mock_model = MagicMock()

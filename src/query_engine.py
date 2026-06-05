@@ -16,7 +16,8 @@ class QueryEngine:
         self,
         index_path: Union[str, Path],
         metadata_dir: Union[str, Path],
-        model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+        model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
+        hf_token: Union[str, None] = None,
     ):
         """Initialize the query engine.
 
@@ -24,6 +25,7 @@ class QueryEngine:
             index_path: Path to the FAISS index file.
             metadata_dir: Path to the directory containing metadata.json.
             model_name: The name of the embedding model to use.
+            hf_token: Optional Hugging Face user access token for model downloads.
         """
         self.index_path = Path(index_path)
         self.metadata_dir = Path(metadata_dir)
@@ -34,7 +36,7 @@ class QueryEngine:
         if not (self.metadata_dir / "metadata.json").exists():
             raise FileNotFoundError(f"metadata.json not found in {self.metadata_dir}")
 
-        self.embedder = Embedder(model_name=model_name)
+        self.embedder = Embedder(model_name=model_name, hf_token=hf_token)
         
         # Load the index
         self.vector_store = VectorStore()
