@@ -30,6 +30,21 @@ class TestGenerator(unittest.TestCase):
         self.assertEqual(self.generator.tokenizer, self.mock_tokenizer_instance)
         self.assertEqual(self.generator.model, self.mock_model_instance)
 
+    @patch("src.generator.AutoModelForSeq2SeqLM")
+    @patch("src.generator.AutoTokenizer")
+    def test_initialization_passes_hf_token(self, mock_tokenizer, mock_model):
+        """Test that an explicit Hugging Face token is passed to model loaders."""
+        mock_model.from_pretrained.return_value.to.return_value = MagicMock()
+
+        Generator(model_name="private-model", hf_token="hf_test")
+
+        mock_tokenizer.from_pretrained.assert_called_once_with(
+            "private-model", token="hf_test"
+        )
+        mock_model.from_pretrained.assert_called_once_with(
+            "private-model", token="hf_test"
+        )
+
     def test_generate_empty_prompt(self):
         """Test generating with an empty prompt returns empty string."""
         result = self.generator.generate("   ")

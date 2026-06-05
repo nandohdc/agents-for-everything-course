@@ -53,6 +53,26 @@ class TestQueryEngine(unittest.TestCase):
 
     @patch("src.query_engine.VectorStore")
     @patch("src.query_engine.Embedder")
+    def test_query_engine_passes_hf_token(self, MockEmbedder, MockVectorStore):
+        mock_vs_instance = MockVectorStore.return_value
+        mock_vs_instance.index.ntotal = 2
+
+        with open(self.index_path, "w") as f:
+            f.write("dummy index")
+
+        QueryEngine(
+            index_path=self.index_path,
+            metadata_dir=self.base_path,
+            model_name="private-embedder",
+            hf_token="hf_test",
+        )
+
+        MockEmbedder.assert_called_once_with(
+            model_name="private-embedder", hf_token="hf_test"
+        )
+
+    @patch("src.query_engine.VectorStore")
+    @patch("src.query_engine.Embedder")
     def test_query_engine_search(self, MockEmbedder, MockVectorStore):
         # Setup dummy index file
         with open(self.index_path, "w") as f:

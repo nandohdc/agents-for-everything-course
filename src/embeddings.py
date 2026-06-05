@@ -19,13 +19,19 @@ DEFAULT_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 class Embedder:
     """Wrapper around SentenceTransformer for generating chunk embeddings."""
 
-    def __init__(self, model_name: str = DEFAULT_MODEL_NAME):
+    def __init__(
+        self,
+        model_name: str = DEFAULT_MODEL_NAME,
+        hf_token: Union[str, None] = None,
+    ):
         """Initialize the embedder by loading the model.
 
         Args:
             model_name: The Hugging Face model identifier or path.
+            hf_token: Optional Hugging Face user access token for model downloads.
         """
-        self.model = SentenceTransformer(model_name)
+        kwargs = {"token": hf_token} if hf_token else {}
+        self.model = SentenceTransformer(model_name, **kwargs)
 
     def embed_chunks(self, chunks: List[Chunk]) -> np.ndarray:
         """Generate dense vector embeddings for a list of chunks.
