@@ -32,6 +32,7 @@ from src.chunker import chunk_documents  # noqa: E402
 from src.document_loader import load_documents  # noqa: E402
 from src.embeddings import Embedder, chunk_to_metadata, save_embeddings  # noqa: E402
 from src.generator import Generator  # noqa: E402
+from src.grounding import REFUSAL_ANSWER, context_supports_question  # noqa: E402
 from src.history import append_interaction  # noqa: E402
 from src.prompt_builder import build_prompt  # noqa: E402
 from src.query_engine import QueryEngine  # noqa: E402
@@ -45,6 +46,12 @@ DEFAULT_MODEL = "google/flan-t5-base"
 DEFAULT_HISTORY_FILE = "history/qa_history.jsonl"
 DEFAULT_TOP_K = 3
 DEFAULT_MAX_TOKENS = 128
+USER_FACING_EXCEPTIONS = (
+    FileNotFoundError,
+    NotADirectoryError,
+    ValueError,
+    ImportError,
+)
 
 # Type alias: a backend answers a question with (answer_text, source_labels).
 AnswerFn = Callable[[str], Tuple[str, List[str]]]
@@ -125,6 +132,21 @@ def result_sources(results: List[Tuple[Dict[str, Any], float]]) -> List[str]:
     return sources
 
 
+def positive_int(value: str) -> int:
+    """Argparse type for positive integer CLI options."""
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
+def _print_error(message: str) -> None:
+    print(f"Error: {message}", file=sys.stderr)
+
+
 def answer_question(
     question: str,
     engine: QueryEngine,
@@ -142,6 +164,11 @@ def answer_question(
         ``(metadata, distance)`` tuples from the query engine.
     """
     results = engine.query(question, k=k)
+    if not context_supports_question(
+        question, (metadata.get("text", "") for metadata, _ in results)
+    ):
+        return REFUSAL_ANSWER, results
+
     prompt = build_prompt(question, results)
     answer = generator.generate(prompt, max_new_tokens=max_tokens, temperature=0.0)
     return answer, results
@@ -207,39 +234,44 @@ def _dispatch(
 
 def _run_baseline(args: argparse.Namespace, history_file: Union[str, Path, None]) -> int:
     # Ensure the index exists, building it from the corpus if needed.
-    if args.rebuild or not index_exists(args.index_file, args.metadata_dir):
-        if args.rebuild:
-            print(f"Rebuilding index from '{args.data_dir}' ...")
-        else:
-            print(
-                f"Index not found at '{args.index_file}'. "
-                f"Building it from '{args.data_dir}' ..."
+    try:
+        if args.rebuild or not index_exists(args.index_file, args.metadata_dir):
+            if args.rebuild:
+                print(f"Rebuilding index from '{args.data_dir}' ...", flush=True)
+            else:
+                print(
+                    f"Index not found at '{args.index_file}'. "
+                    f"Building it from '{args.data_dir}' ...",
+                    flush=True,
+                )
+            summary = build_index(
+                data_dir=args.data_dir,
+                output_dir=args.metadata_dir,
+                index_file=args.index_file,
             )
-        summary = build_index(
-            data_dir=args.data_dir,
-            output_dir=args.metadata_dir,
-            index_file=args.index_file,
-        )
-        print(
-            f"Indexed {summary['num_chunks']} chunks from "
-            f"{summary['num_documents']} documents (dim={summary['dimension']}).\n"
-        )
+            print(
+                f"Indexed {summary['num_chunks']} chunks from "
+                f"{summary['num_documents']} documents (dim={summary['dimension']}).\n"
+            )
 
-    print("Loading retrieval + generation models (first run may download weights) ...")
-    engine = QueryEngine(
-        index_path=args.index_file,
-        metadata_dir=args.metadata_dir,
-        model_name=EMBEDDING_MODEL,
-    )
-    generator = Generator(model_name=args.model)
-
-    def answer_fn(question: str) -> Tuple[str, List[str]]:
-        answer, results = answer_question(
-            question, engine, generator, k=args.top_k, max_tokens=args.max_tokens
+        print("Loading retrieval + generation models (first run may download weights) ...")
+        engine = QueryEngine(
+            index_path=args.index_file,
+            metadata_dir=args.metadata_dir,
+            model_name=EMBEDDING_MODEL,
         )
-        return answer, result_sources(results)
+        generator = Generator(model_name=args.model)
 
-    return _dispatch(args.question, answer_fn, history_file)
+        def answer_fn(question: str) -> Tuple[str, List[str]]:
+            answer, results = answer_question(
+                question, engine, generator, k=args.top_k, max_tokens=args.max_tokens
+            )
+            return answer, result_sources(results)
+
+        return _dispatch(args.question, answer_fn, history_file)
+    except USER_FACING_EXCEPTIONS as exc:
+        _print_error(str(exc))
+        return 1
 
 
 def _run_langchain(args: argparse.Namespace, history_file: Union[str, Path, None]) -> int:
@@ -253,14 +285,18 @@ def _run_langchain(args: argparse.Namespace, history_file: Union[str, Path, None
         )
         return 1
 
-    print("Building LangChain pipeline (first run may download weights) ...")
-    rag = LangChainRAG(
-        data_dir=args.data_dir,
-        k=args.top_k,
-        max_tokens=args.max_tokens,
-        model_name=args.model,
-    )
-    return _dispatch(args.question, rag.answer, history_file)
+    try:
+        print("Building LangChain pipeline (first run may download weights) ...", flush=True)
+        rag = LangChainRAG(
+            data_dir=args.data_dir,
+            k=args.top_k,
+            max_tokens=args.max_tokens,
+            model_name=args.model,
+        )
+        return _dispatch(args.question, rag.answer, history_file)
+    except USER_FACING_EXCEPTIONS as exc:
+        _print_error(str(exc))
+        return 1
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -290,13 +326,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-k",
         "--top-k",
-        type=int,
+        type=positive_int,
         default=DEFAULT_TOP_K,
         help=f"Number of chunks to retrieve (default: {DEFAULT_TOP_K}).",
     )
     parser.add_argument(
         "--max-tokens",
-        type=int,
+        type=positive_int,
         default=DEFAULT_MAX_TOKENS,
         help=f"Max new tokens to generate (default: {DEFAULT_MAX_TOKENS}).",
     )

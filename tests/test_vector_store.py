@@ -60,3 +60,8 @@ class TestVectorStore(unittest.TestCase):
         distances, indices = self.vector_store.search(query_embedding, k=1)
         self.assertEqual(distances.size, 0)
         self.assertEqual(indices.size, 0)
+
+    def test_search_rejects_invalid_k(self):
+        query_embedding = np.ones(self.dimension, dtype=np.float32)
+        with self.assertRaisesRegex(ValueError, "k must be > 0"):
+            self.vector_store.search(query_embedding, k=0)

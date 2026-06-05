@@ -70,6 +70,9 @@ class VectorStore:
                 - distances: A numpy array of distances to the returned embeddings.
                 - indices: A numpy array of the indices of the returned embeddings.
         """
+        if k <= 0:
+            raise ValueError(f"k must be > 0, got {k}")
+
         if self.index.ntotal == 0:
             return np.array([[]], dtype=np.float32), np.array([[]], dtype=np.int64)
             
